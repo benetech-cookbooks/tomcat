@@ -72,13 +72,17 @@ action :configure do
     # The base also needs a bunch of to symlinks inside it
     ['bin', 'lib'].each do |dir|
       link "#{new_resource.base}/#{dir}" do
-        to "#{node['tomcat']['base']}/#{dir}"
+        to "#{node['tomcat']['home']}/#{dir}"
       end
     end
     {'conf' => 'config_dir', 'logs' => 'log_dir', 'temp' => 'tmp_dir',
-     'work' => 'work_dir', 'webapps' => 'webapp_dir'}.each do |name, attr|
+     'work' => 'work_dir'}.each do |name, attr|
       link "#{new_resource.base}/#{name}" do
         to new_resource.instance_variable_get("@#{attr}")
+      end
+      
+      link "#{new_resource.base}/conf/policy.d" do
+        to "#{node['tomcat']['config_dir']}/policy.d"
       end
     end
 
@@ -241,7 +245,21 @@ action :configure do
       mode '0644'
     end
   end
+  
+  file "#{node["tomcat"]["config_dir"]}/tomcat-users.xml" do
+    owner 'root'
+    group 'j2ee'
+    mode '0640'
+  end
+  
+  #
+  # disable base instance
+  #
 
+  service "tomcat6" do
+    action [:stop, :disable]
+  end
+  
   service "#{instance}" do
     case node['platform']
     when 'centos', 'redhat', 'fedora', 'amazon'
@@ -262,7 +280,7 @@ action :configure do
     retries 4
     retry_delay 30
   end
-
+  
   execute "wait for #{instance}" do
     command 'sleep 5'
     action :nothing

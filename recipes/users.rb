@@ -22,8 +22,8 @@
 template "#{node["tomcat"]["config_dir"]}/tomcat-users.xml" do
   source 'tomcat-users.xml.erb'
   owner 'root'
-  group 'root'
-  mode '0644'
+  group 'j2ee'
+  mode '0640'
   variables(
     :users => TomcatCookbook.users,
     :roles => TomcatCookbook.roles,
