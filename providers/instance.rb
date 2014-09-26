@@ -39,18 +39,35 @@ action :configure do
     end
 
     # Create the directories, since the OS package wouldn't have
-    [:base, :config_dir, :context_dir].each do |attr|
+    [:config_dir, :context_dir].each do |attr|
       directory new_resource.instance_variable_get("@#{attr}") do
         mode '0755'
         recursive true
       end
     end
-    [:log_dir, :work_dir, :webapp_dir].each do |attr|
+
+    [:base].each do |attr|
+      directory new_resource.instance_variable_get("@#{attr}") do
+        mode '0755'
+        owner new_resource.name
+        recursive true
+      end
+    end
+
+    [:log_dir, :work_dir].each do |attr|
       directory new_resource.instance_variable_get("@#{attr}") do
         mode '0755'
         recursive true
         user new_resource.user
         group new_resource.group
+      end
+    end
+    [:webapp_dir].each do |attr|
+      directory new_resource.instance_variable_get("@#{attr}") do
+        mode '0775'
+        recursive true
+        user new_resource.user
+        group "deploy"
       end
     end
 
@@ -250,6 +267,14 @@ action :configure do
     owner 'root'
     group 'j2ee'
     mode '0640'
+  end
+
+  cookbook_file "character-encoding-filter.jar" do
+    path "#{node['tomcat']['home']}/lib/character-encoding-filter.jar"
+    action :create
+    owner 'root'
+    group 'root'
+    mode 0644
   end
   
   #
