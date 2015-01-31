@@ -39,6 +39,12 @@ if node['tomcat']['deploy_manager_apps']
     )
 end
 
+tomcat_pkgs << value_for_platform(
+    %w{ debian  ubuntu } => {
+        'default' => "libtcnative-1",
+    }
+)
+
 tomcat_pkgs.compact!
 
 tomcat_pkgs.each do |pkg|
