@@ -105,9 +105,11 @@ action :configure do
 
     # Make a copy of the init script for this instance
     execute "/etc/init.d/#{instance}" do
+      dir = node['tomcat']['instances'][new_resource.name][webapp_dir]
       command <<-EOH
         cp /etc/init.d/#{base_instance} /etc/init.d/#{instance}
         perl -i -pe 's/#{base_instance}/#{instance}/g' /etc/init.d/#{instance}
+        perl -i -pe 's/rm -rf "\$JVM_TMP"/rm -rf "\$JVM_TMP"\n\t\trm -rf \/foo\/bar/g'' /etc/init.d/#{instance}
       EOH
     end
   end
