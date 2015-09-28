@@ -93,11 +93,11 @@ action :configure do
       end
     end
     { 'conf' => 'config_dir', 'logs' => 'log_dir', 'temp' => 'tmp_dir',
-      'work' => 'work_dir', 'webapps' => 'webapp_dir' }.each do |name, attr|
+      'work' => 'work_dir'}.each do |name, attr|
       link "#{new_resource.base}/#{name}" do
         to new_resource.instance_variable_get("@#{attr}")
       end
-      
+
       link "#{new_resource.base}/conf/policy.d" do
         to "#{node['tomcat']['config_dir']}/policy.d"
       end
@@ -298,15 +298,11 @@ action :configure do
   # disable base instance
   #
 
-<<<<<<< HEAD
   service "tomcat6" do
     action [:stop, :disable]
   end
   
   service "#{instance}" do
-=======
-  service instance do
->>>>>>> 4537f7d3137d7aa04ab9f399c17d880f4bac6cc1
     case node['platform_family']
     when 'rhel', 'fedora'
       service_name instance
